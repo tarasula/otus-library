@@ -10,6 +10,6 @@ import lombok.experimental.Accessors;
 public class Book {
     private long id;
     private String name;
-    private long author;
-    private long genre;
+    private String author;
+    private String genre;
 }

@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS BOOKS;
 CREATE TABLE BOOKS(
     ID BIGINT PRIMARY KEY auto_increment,
     NAME VARCHAR(255),
-    AUTHOR BIGINT REFERENCES AUTHOR(ID),
-    GENRE BIGINT REFERENCES GENRE(ID),
-    foreign key (GENRE) references GENRE(id) on delete cascade,
-    foreign key (AUTHOR) references AUTHOR(id) on delete cascade);
+    AUTHOR_ID BIGINT REFERENCES AUTHOR(ID),
+    GENRE_ID BIGINT REFERENCES GENRE(ID),
+    foreign key (GENRE_ID) references GENRE(id) on delete cascade,
+    foreign key (AUTHOR_ID) references AUTHOR(id) on delete cascade);

@@ -31,7 +31,7 @@ public class ApplicationShellCommands implements Quit.Command {
         return authorService.getAll();
     }
 
-    @ShellMethod(value = "Get Author By Id", key = {"a1"})
+    @ShellMethod(value = "Get Author By Id", key = {"abi"})
     public Author getAuthorById(long id) {
         return authorService.getById(id);
     }
@@ -41,7 +41,7 @@ public class ApplicationShellCommands implements Quit.Command {
         return genreService.getAll();
     }
 
-    @ShellMethod(value = "Get Genre By Id", key = {"g1"})
+    @ShellMethod(value = "Get Genre By Id", key = {"gbi"})
     public Genre getGenreById(long id) {
         return genreService.getById(id);
     }
@@ -71,8 +71,8 @@ public class ApplicationShellCommands implements Quit.Command {
 
         Book book = new Book()
                 .setName(name)
-                .setAuthor(author.getId())
-                .setGenre(genre.getId());
+                .setAuthor(Long.toString(author.getId()))
+                .setGenre(Long.toString(genre.getId()));
 
         bookService.insert(book);
 

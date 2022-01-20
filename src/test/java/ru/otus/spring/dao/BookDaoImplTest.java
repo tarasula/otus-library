@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.EmptyResultDataAccessException;
+import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 
 import java.util.List;
@@ -24,8 +25,9 @@ class BookDaoImplTest {
 
     @Test
     void insertBookTest() {
-        Book expectedBook = getExpectedBook(1, "Власть тьмы", 1, 1);
-        subj.insert(expectedBook);
+        Book requestBook = getExpectedBook(1, "Власть тьмы", "2", "2");
+        Book expectedBook = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
+        subj.insert(requestBook);
 
         Book actual = subj.getById(1);
         assertThat(actual).isEqualTo(expectedBook);
@@ -33,8 +35,8 @@ class BookDaoImplTest {
 
     @Test
     void getAllBooksTest() {
-        Book book1 = getExpectedBook(1, "Власть тьмы", 1, 1);
-        Book book2 = getExpectedBook(2, "Lets do it", 2, 2);
+        Book book1 = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
+        Book book2 = getExpectedBook(2, "Lets do it", "Николай Гоголь", "Комедия");
         List<Book> expectedData = List.of(book1, book2);
         var actual = subj.getAll();
 
@@ -43,7 +45,7 @@ class BookDaoImplTest {
 
     @Test
     void getBookByIdTest() {
-        Book expectedBook = getExpectedBook(1, "Власть тьмы", 1, 1);
+        Book expectedBook = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
         var actual = subj.getById(1);
 
         assertThat(actual).isEqualTo(expectedBook);
@@ -51,8 +53,9 @@ class BookDaoImplTest {
 
     @Test
     void updateBookTest() {
-        Book expectedBook = getExpectedBook(1, "Власть света", 1, 1);
-        subj.update(expectedBook);
+        Book requestBook = getExpectedBook(1, "Власть света", "2", "2");
+        Book expectedBook = getExpectedBook(1, "Власть света", "Николай Гоголь", "Комедия");
+        subj.update(requestBook);
         Book actualBook = subj.getById(1);
         assertThat(actualBook).isEqualTo(expectedBook);
     }
@@ -64,12 +67,12 @@ class BookDaoImplTest {
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
 
-    private Book getExpectedBook(long id, String name, long authorId, long genreId) {
+    private Book getExpectedBook(long id, String name, String authorId, String genreId) {
         return new Book()
                 .setId(id)
                 .setName(name)
-                .setGenre(authorId)
-                .setAuthor(genreId);
+                .setGenre(genreId)
+                .setAuthor(authorId);
     }
 
 }

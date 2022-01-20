@@ -22,21 +22,21 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public void insert(Book book) {
-        String query = "insert into books (name, author, genre) values (:name, :author, :genre)";
+        String query = "insert into books (name, author_id, genre_id) values (:name, :author_id, :genre_id)";
 
         var params
-                = Map.of("name", book.getName(), "author", book.getAuthor(), "genre", book.getGenre());
+                = Map.of("name", book.getName(), "author_id", book.getAuthor(), "genre_id", book.getGenre());
         template.update(query, params);
     }
 
     @Override
     public void update(Book book) {
-        String query = "update books set name = :name, author = :author, genre = :genre where id = :id";
+        String query = "update books set name = :name, author_id = :author_id, genre_id = :genre_id where id = :id";
 
         var params
                 = Map.of("name", book.getName(),
-                "author", book.getAuthor(),
-                "genre", book.getGenre(),
+                "author_id", book.getAuthor(),
+                "genre_id", book.getGenre(),
                 "id", book.getId());
         template.update(query, params);
     }
@@ -49,13 +49,13 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public Book getById(long id) {
-        String query = "select * from books where id = :id";
+        String query = "select b.id, b.name, a.name as author, g.name as genre from BOOKS b inner join AUTHOR a on b.author_id = a.id inner join GENRE g on b.genre_id = g.id where b.id = :id ";
         return template.queryForObject(query, Map.of("id", id), new BookMapper());
     }
 
     @Override
     public List<Book> getAll() {
-        String query = "select * from books";
+        String query = "select b.id, b.name, a.name as author, g.name as genre from BOOKS b inner join AUTHOR a on b.author_id = a.id inner join GENRE g on b.GENRE_ID = g.id";
         return template.query(query, new BookMapper());
     }
 
@@ -63,8 +63,8 @@ public class BookDaoImpl implements BookDao {
         public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Book()
                     .setId(rs.getLong("id"))
-                    .setAuthor(rs.getLong("author"))
-                    .setGenre(rs.getLong("genre"))
+                    .setAuthor(rs.getString("author"))
+                    .setGenre(rs.getString("genre"))
                     .setName(rs.getString("name"));
         }
     }

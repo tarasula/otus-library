@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,7 +37,7 @@ public class BookServiceImplTest {
 
     @Test
     void getBookByIdTest() {
-        Book expectedBook = getExpectedBook(1, "Власть тьмы", 1, 1);
+        Book expectedBook = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
 
         when(bookDao.getById(1)).thenReturn(expectedBook);
         var actual = subj.getById(1);
@@ -47,20 +46,22 @@ public class BookServiceImplTest {
 
     @Test
     void updateBookTest() {
-        Book expectedBook = getExpectedBook(1, "Власть тьмы", 1, 1);
+        Book requestBook = getExpectedBook(1, "Власть тьмы", "2", "2");
+        Book expectedBook = getExpectedBook(1, "Власть тьмы", "Николай Гоголь", "Комедия");
         doNothing().when(bookDao).update(expectedBook);
 
-        subj.update(expectedBook);
+        subj.update(requestBook);
         Book actualBook = subj.getById(1);
         assertThat(actualBook).isEqualTo(expectedBook);
     }
 
     @Test
     void insertBookTest() {
-        Book expectedBook = getExpectedBook(1, "Власть тьмы", 1, 1);
+        Book requestBook = getExpectedBook(1, "Власть тьмы", "2", "2");
+        Book expectedBook = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
         doNothing().when(bookDao).insert(expectedBook);
 
-        subj.insert(expectedBook);
+        subj.insert(requestBook);
         Book actual = subj.getById(1);
         assertThat(actual).isEqualTo(expectedBook);
     }
@@ -69,8 +70,8 @@ public class BookServiceImplTest {
     void getAllBooksTest() {
 
         List<Book> expectedBookList = List.of(
-                getExpectedBook(1, "Власть тьмы", 1, 1),
-                getExpectedBook(2, "Lets do it", 2, 2));
+                getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма"),
+                getExpectedBook(2, "Lets do it", "Николай Гоголь", "Комедия"));
 
         when(bookDao.getAll()).thenReturn(expectedBookList);
         var actual = subj.getAll();
@@ -85,11 +86,11 @@ public class BookServiceImplTest {
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
 
-    private Book getExpectedBook(long id, String name, long authorId, long genreId){
+    private Book getExpectedBook(long id, String name, String author, String genre){
         return new Book()
                 .setId(id)
                 .setName(name)
-                .setGenre(authorId)
-                .setAuthor(genreId);
+                .setGenre(genre)
+                .setAuthor(author);
     }
 }
