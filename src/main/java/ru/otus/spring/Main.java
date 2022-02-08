@@ -13,13 +13,13 @@ import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
 
 @SpringBootApplication
-@EntityScan("ru.otus.spring.*   ")
+//@EntityScan("ru.otus.spring.*")
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
         ApplicationContext context = SpringApplication.run(Main.class);
-        context.getBean(BookDao.class);
+//        context.getBean(BookDao.class);
 
 
         Console.main(args);

@@ -8,29 +8,39 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.EmptyResultDataAccessException;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.Genre;
 
 import java.util.List;
 
-@DisplayName("Dao для работы с пёрсонами должно")
-@JdbcTest
-@Import(BookDaoImpl.class)
+@DataJpaTest
+@Import({BookDaoImpl.class, GenreDaoImpl.class})
 class BookDaoImplTest {
 
     @Autowired
     private BookDaoImpl subj;
 
+    @Autowired
+    private GenreDaoImpl genre;
+
     @Test
     void insertBookTest() {
         Book requestBook = getExpectedBook(1, "Власть тьмы", "2", "2");
         Book expectedBook = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
-        subj.insert(requestBook);
-
+//        subj.insert(requestBook);
+//        subj.insert(expectedBook);
+//        subj.insert(expectedBook);
+//        genre.insert(new Genre()
+//        .setId(2)
+//        .setName("test2"));
+        List<Book> list = subj.getAllF();
         Book actual = subj.getById(1);
-        assertThat(actual).isEqualTo(expectedBook);
+//        assertThat(actual).isEqualTo(expectedBook);
     }
 
     @Test

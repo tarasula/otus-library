@@ -63,7 +63,9 @@ public class ApplicationShellCommands implements Quit.Command {
             authorService.insert(authorName);
         }
         if (getGenreFromDictionary(genreName) == null) {
-            genreService.insert(genreName);
+            Genre genre = new Genre();
+            genre.setName(genreName);
+            genreService.insert(genre);
         }
 
         Author author = getAuthorFromDictionary(authorName);

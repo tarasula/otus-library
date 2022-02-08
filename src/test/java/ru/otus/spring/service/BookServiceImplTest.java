@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -78,6 +79,13 @@ public class BookServiceImplTest {
 
         assertThat(actual).isEqualTo(expectedBookList);
     }
+
+//    @DisplayName("возвращать список всех сотрудников")
+//    @Test
+//    void shouldFindAllEmployees() {
+//        List<Employee> employees = employeeRepository.findAll();
+//        assertThat(employees).hasSize(EMPLOYEES_COUNT);
+//    }
 
     @Test
     void deleteBookTest() {

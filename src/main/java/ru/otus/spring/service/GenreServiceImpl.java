@@ -21,8 +21,8 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public void insert(String name) {
-        genreDao.insert(name);
+    public void insert(Genre genre) {
+        genreDao.insert(genre);
     }
 
     @Override

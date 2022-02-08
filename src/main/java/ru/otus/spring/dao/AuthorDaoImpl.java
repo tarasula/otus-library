@@ -1,11 +1,13 @@
 package ru.otus.spring.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Author;
+import ru.otus.spring.domain.Genre;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,54 +17,41 @@ import java.util.Map;
 @Repository
 public class AuthorDaoImpl implements AuthorDao {
 
-    private NamedParameterJdbcTemplate template;
+    @PersistenceContext
+    private final EntityManager em;
 
-    @Autowired
-    public AuthorDaoImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
+    public AuthorDaoImpl(EntityManager em) {
+        this.em = em;
     }
+
 
     @Override
     public Author getById(long id) {
-        String query = "select * from author where id = :id";
-        return template.queryForObject(query, Map.of("id", id), new AuthorMapper());
+        return em.find(Author.class, id);
     }
 
     @Override
     public List<Author> getAll() {
-        String query = "select * from author";
-        return template.query(query, new AuthorMapper());
+        return em.createQuery("select * from author", Author.class).getResultList();
     }
 
     @Override
     public void insert(String name) {
-        String query = "insert into author (name) values (:name)";
-
-        var params = Map.of("name", name);
-        template.update(query, params);
+        em.persist(new Author().setName(name));
     }
 
     @Override
     public void update(Author author) {
-        String query = "update author set name = :name where id = :id";
-
-        var params
-                = Map.of("name", author.getName(),
-                "id", author.getId());
-        template.update(query, params);
+        Query query = em.createQuery("update author set name = :name where id = :id");
+        query.setParameter("name", author.getName());
+        query.setParameter("id", author.getId());
+        query.executeUpdate();
     }
 
     @Override
     public void delete(long id) {
-        String query = "delete from author where id = :id";
-        template.execute(query, Map.of("id", id), PreparedStatement::executeUpdate);
-    }
-
-    private static final class AuthorMapper implements RowMapper<Author> {
-        public Author mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Author()
-                    .setId(rs.getLong("id"))
-                    .setName(rs.getString("name"));
-        }
+        Query query = em.createQuery("delete from author where id = :id");
+        query.setParameter("id", id);
+        query.executeUpdate();
     }
 }

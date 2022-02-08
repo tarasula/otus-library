@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GenreService {
 
-    void insert(String name);
+    void insert(Genre genre);
 
     void update(Genre genre);
 

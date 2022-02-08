@@ -1,71 +1,71 @@
 package ru.otus.spring.dao;
 
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.exception.DaoException;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class BookDaoImpl implements BookDao {
 
-    private final NamedParameterJdbcTemplate template;
+    @PersistenceContext
+    private final EntityManager em;
 
-    public BookDaoImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
+    public BookDaoImpl(EntityManager em) {
+        this.em = em;
     }
 
+    @SneakyThrows
     @Override
-    public void insert(Book book) {
-        String query = "insert into books (name, author_id, genre_id) values (:name, :author_id, :genre_id)";
-
-        var params
-                = Map.of("name", book.getName(), "author_id", book.getAuthor(), "genre_id", book.getGenre());
-        template.update(query, params);
+    public Book insert(Book book) {
+        try {
+            if (book.getId() == 0) {
+                em.persist(book);
+                return book;
+            }
+            return em.merge(book);
+        } catch (Exception e) {
+            throw new DaoException("Unexpected exception during book insertion.", e);
+        }
     }
 
     @Override
     public void update(Book book) {
-        String query = "update books set name = :name, author_id = :author_id, genre_id = :genre_id where id = :id";
-
-        var params
-                = Map.of("name", book.getName(),
-                "author_id", book.getAuthor(),
-                "genre_id", book.getGenre(),
-                "id", book.getId());
-        template.update(query, params);
+        Query query = em.createQuery("update Book set name = :name, author = :author_id, genre = :genre_id where id = :id");
+        query.setParameter("name", book.getName());
+        query.setParameter("author_id", book.getAuthor());
+        query.setParameter("genre_id", book.getGenre());
+        query.setParameter("id", book.getId());
+        query.executeUpdate();
     }
 
     @Override
     public void delete(long id) {
-        String query = "delete from books where id = :id";
-        template.execute(query, Map.of("id", id), PreparedStatement::executeUpdate);
+        Query query = em.createQuery("delete from Book where id = :id");
+        query.setParameter("id", id);
+        query.executeUpdate();
     }
 
     @Override
     public Book getById(long id) {
-        String query = "select b.id, b.name, a.name as author, g.name as genre from BOOKS b inner join AUTHOR a on b.author_id = a.id inner join GENRE g on b.genre_id = g.id where b.id = :id ";
-        return template.queryForObject(query, Map.of("id", id), new BookMapper());
+        Query query = em.createQuery("select b.id, b.name, a.name as author, g.name as genre from Book b inner join Author a on b.id = a.id inner join Genre g on b.id = g.id where b.id = :id ");
+        query.setParameter("id", id);
+        return (Book) query.getSingleResult();
     }
 
     @Override
     public List<Book> getAll() {
-        String query = "select b.id, b.name, a.name as author, g.name as genre from BOOKS b inner join AUTHOR a on b.author_id = a.id inner join GENRE g on b.GENRE_ID = g.id";
-        return template.query(query, new BookMapper());
+        Query query = em.createQuery("select b.id, b.name, a.name as author, g.name as genre from Book b inner join Author a on b.id = a.id inner join Genre g on b.id = g.id");
+        return (List<Book>) query.getResultList();
     }
 
-    private static final class BookMapper implements RowMapper<Book> {
-        public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Book()
-                    .setId(rs.getLong("id"))
-                    .setAuthor(rs.getString("author"))
-                    .setGenre(rs.getString("genre"))
-                    .setName(rs.getString("name"));
-        }
+    @Override
+    public List<Book> getAllF() {
+        return em.createQuery("select b.id, b.name, b.genre, b.author from Book b").getResultList();
     }
 }
