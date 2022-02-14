@@ -16,6 +16,4 @@ public interface BookDao {
 
     List<Book> getAll();
 
-    List<Book> getAllF();
-
 }

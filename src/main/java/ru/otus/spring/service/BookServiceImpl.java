@@ -3,6 +3,7 @@ package ru.otus.spring.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.dao.BookDaoImpl;
 import ru.otus.spring.domain.Book;
 
@@ -19,26 +20,31 @@ public class BookServiceImpl implements  BookService{
         this.bookDao = bookDao;
     }
 
+    @Transactional
     @Override
-    public void insert(Book book) {
-        bookDao.insert(book);
+    public Book insert(Book book) {
+        return bookDao.insert(book);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public void update(Book book) {
         bookDao.update(book);
     }
 
+    @Transactional
     @Override
     public void delete(long id) {
         bookDao.delete(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Book getById(long id) {
         return bookDao.getById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Book> getAll() {
         return bookDao.getAll();

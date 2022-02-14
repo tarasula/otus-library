@@ -12,6 +12,7 @@ import ru.otus.spring.service.BookServiceImpl;
 import ru.otus.spring.service.GenreServiceImpl;
 
 import java.util.List;
+import java.util.Random;
 
 @ShellComponent
 @RequiredArgsConstructor
@@ -58,12 +59,16 @@ public class ApplicationShellCommands implements Quit.Command {
 
     @ShellMethod(value = "Create book command", key = {"ib", "cb", "create book", "insert book"})
     public String insert(String name, String authorName, String genreName) {
-
+    Random random = new Random();
         if (getAuthorFromDictionary(authorName) == null) {
-            authorService.insert(authorName);
+            Author newAuthor = new Author();
+            newAuthor.setId(random.nextLong());
+            newAuthor.setName(authorName);
+            authorService.insert(newAuthor);
         }
         if (getGenreFromDictionary(genreName) == null) {
             Genre genre = new Genre();
+            genre.setId(random.nextLong());
             genre.setName(genreName);
             genreService.insert(genre);
         }
@@ -72,9 +77,10 @@ public class ApplicationShellCommands implements Quit.Command {
         Genre genre = getGenreFromDictionary(genreName);
 
         Book book = new Book()
+                .setId(random.nextLong())
                 .setName(name)
-                .setAuthor(Long.toString(author.getId()))
-                .setGenre(Long.toString(genre.getId()));
+                .setAuthor(author)
+                .setGenre(genre);
 
         bookService.insert(book);
 

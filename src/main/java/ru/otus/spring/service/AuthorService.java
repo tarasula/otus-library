@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface AuthorService {
 
-    void insert(String name);
+    Author insert(Author author);
 
     void update(Author book);
 

@@ -2,13 +2,12 @@ package ru.otus.spring.dao;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Genre;
 
 import java.util.List;
@@ -18,48 +17,25 @@ import java.util.List;
 class GenreDaoImplTest {
 
     @Autowired
-    private GenreDaoImpl subj;
-
-    @Test
-    void insertGenreTest() {
-        Genre expected = new Genre()
-                .setId(1)
-                .setName("Драма");
-
-        subj.insert(expected);
-
-        Genre actual = subj.getById(1);
-        assertThat(actual).isEqualTo(expected);
-    }
+    GenreDaoImpl subj;
 
     @Test
     void getAllGenreTest() {
-        Genre genre1 = new Genre()
-                .setId(1)
-                .setName("Драма");
+        List<Genre> actualList = subj.getAll();
+        assertThat(actualList)
+                .containsExactlyInAnyOrder(
+                        new Genre(1, "Драма"),
+                        new Genre(2, "Комедия")
 
-        Genre genre2 = new Genre()
-                .setId(2)
-                .setName("Комедия");
-
-        subj.insert(genre1);
-        subj.insert(genre2);
-
-        List<Genre> expectedData = List.of(genre1, genre2);
-        var actual = subj.getAll();
-
-        assertThat(actual).isEqualTo(expectedData);
+                );
     }
 
     @Test
-    void getGenreByIdTest() {
-        Genre expectedGenre = new Genre()
-                .setId(1)
-                .setName("Драма");
+    void getGenreById() {
+        Genre actualGenre = subj.getById(1);
+        Genre expectedGenre = new Genre(1L, "Драма");
 
-        subj.insert(expectedGenre);
-        var actual = subj.getById(1);
-        assertThat(actual).isEqualTo(expectedGenre);
+        assertEquals(actualGenre, expectedGenre);
     }
 
 }
