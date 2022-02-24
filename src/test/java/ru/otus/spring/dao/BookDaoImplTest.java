@@ -1,88 +1,116 @@
 package ru.otus.spring.dao;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.EmptyResultDataAccessException;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @DataJpaTest
-@Import({BookDaoImpl.class, GenreDaoImpl.class})
+@Import({AuthorDaoImpl.class, GenreDaoImpl.class, BookDaoImpl.class})
 class BookDaoImplTest {
+    @PersistenceContext
+    EntityManager em;
 
     @Autowired
-    private BookDaoImpl subj;
-
-    @Autowired
-    private GenreDaoImpl genre;
-
-    @Test
-    void insertBookTest() {
-        Book requestBook = getExpectedBook(1, "Власть тьмы", "2", "2");
-        Book expectedBook = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
-//        subj.insert(requestBook);
-//        subj.insert(expectedBook);
-//        subj.insert(expectedBook);
-//        genre.insert(new Genre()
-//        .setId(2)
-//        .setName("test2"));
-        List<Book> list = subj.getAllF();
-        Book actual = subj.getById(1);
-//        assertThat(actual).isEqualTo(expectedBook);
-    }
+    BookDaoImpl booksDaoJpa;
 
     @Test
     void getAllBooksTest() {
-        Book book1 = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
-        Book book2 = getExpectedBook(2, "Lets do it", "Николай Гоголь", "Комедия");
-        List<Book> expectedData = List.of(book1, book2);
-        var actual = subj.getAll();
 
-        assertThat(actual).isEqualTo(expectedData);
+        Book expectedBook1 = getExpectedBook(1L, "Власть тьмы");
+        expectedBook1.setAuthor(getExpectedAuthor(2L, "Николай Гоголь"));
+        expectedBook1.setGenre(getExpectedGenre(2L, "Комедия"));
+
+        Book expectedBook2 = getExpectedBook(2L, "Lets do it");
+        expectedBook2.setAuthor(getExpectedAuthor(2L, "Николай Гоголь"));
+        expectedBook2.setGenre(getExpectedGenre(2L, "Комедия"));
+
+        List<Book> actualList = booksDaoJpa.getAll();
+        assertEquals(actualList, List.of(expectedBook1, expectedBook2));
     }
 
     @Test
     void getBookByIdTest() {
-        Book expectedBook = getExpectedBook(1, "Власть тьмы", "Лев Толстой", "Драма");
-        var actual = subj.getById(1);
+        Book expectedBook1 = getExpectedBook(1L, "Власть тьмы");
+        expectedBook1.setAuthor(getExpectedAuthor(2L, "Николай Гоголь"));
+        expectedBook1.setGenre(getExpectedGenre(2L, "Комедия"));
 
-        assertThat(actual).isEqualTo(expectedBook);
+        Book actualBook = booksDaoJpa.getById(1L);
+        assertEquals(actualBook, expectedBook1);
+    }
+
+    @Test
+    void insertBookTest() {
+        Author a3 = new Author(3L, "Новый Автор");
+        Genre g3 = new Genre(3L, "Новый Жанр");
+        Book newBook = new Book()
+                .setId(3L)
+                .setName("Новая Книга")
+                .setAuthor(a3)
+                .setGenre(g3);
+
+        Book actualBook = booksDaoJpa.insert(newBook);
+
+
+        Author expectedAuthor = getExpectedAuthor(3L, "Новый Автор");
+        Genre expectedGenre = getExpectedGenre(3L, "Новый Жанр");
+
+        Book expectedBook = getExpectedBook(3L, "Новая Книга");
+        expectedBook.setGenre(expectedGenre);
+        expectedBook.setAuthor(expectedAuthor);
+
+        assertEquals(actualBook, expectedBook);
     }
 
     @Test
     void updateBookTest() {
-        Book requestBook = getExpectedBook(1, "Власть света", "2", "2");
-        Book expectedBook = getExpectedBook(1, "Власть света", "Николай Гоголь", "Комедия");
-        subj.update(requestBook);
-        Book actualBook = subj.getById(1);
-        assertThat(actualBook).isEqualTo(expectedBook);
+
+        Book expectedBook = getExpectedBook(1L, "Власть Света");
+        expectedBook.setAuthor(getExpectedAuthor(2L, "Николай Гоголь"));
+        expectedBook.setGenre(getExpectedGenre(2L, "Комедия"));
+
+        Book book = booksDaoJpa.getById(1L);
+        book.setName("Власть Света");
+        booksDaoJpa.update(book);
+
+        Book actualBook = booksDaoJpa.getById(1L);
+        assertEquals(actualBook, expectedBook);
     }
+
 
     @Test
     void deleteBookTest() {
-        subj.delete(1);
-        assertThatThrownBy(() -> subj.getById(1))
-                .isInstanceOf(EmptyResultDataAccessException.class);
+        List<Book> bookListBeforeDelete = booksDaoJpa.getAll();
+        assertEquals(bookListBeforeDelete.size(), 2);
+
+        booksDaoJpa.delete(1L);
+
+        List<Book> bookListAfterDelete = booksDaoJpa.getAll();
+        assertEquals(bookListAfterDelete.size(), 1);
     }
 
-    private Book getExpectedBook(long id, String name, String authorId, String genreId) {
+    private Book getExpectedBook(long id, String bookName) {
         return new Book()
                 .setId(id)
-                .setName(name)
-                .setGenre(genreId)
-                .setAuthor(authorId);
+                .setName(bookName);
+    }
+
+    private Author getExpectedAuthor(long id, String name) {
+        return new Author(id, name);
+    }
+
+    private Genre getExpectedGenre(long id, String name) {
+        return new Genre(id, name);
     }
 
 }

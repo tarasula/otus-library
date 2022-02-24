@@ -1,11 +1,12 @@
 package ru.otus.spring.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Genre;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.List;
 
 @Repository
@@ -14,13 +15,9 @@ public class GenreDaoImpl implements GenreDao {
     @PersistenceContext
     private final EntityManager em;
 
+    @Autowired
     public GenreDaoImpl(EntityManager em) {
         this.em = em;
-    }
-
-    @Override
-    public Genre getById(long id) {
-        return em.find(Genre.class, id);
     }
 
     @Override
@@ -29,22 +26,27 @@ public class GenreDaoImpl implements GenreDao {
     }
 
     @Override
-    public void insert(Genre genre) {
+    public Genre insert(Genre genre) {
         em.persist(genre);
+        return genre;
     }
 
     @Override
     public void update(Genre genre) {
-        Query query = em.createQuery("update Genre set name = :name where id = :id");
-        query.setParameter("name", genre.getName());
-        query.setParameter("id", genre.getId());
-        query.executeUpdate();
+        em.merge(genre);
     }
 
     @Override
     public void delete(long id) {
-        Query query = em.createQuery("delete from genre where id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Genre genre = em.find(Genre.class, id);
+        if (genre == null) {
+            throw new EntityNotFoundException("Genre with id = " + id + " not found.");
+        }
+        em.remove(genre);
+    }
+
+    @Override
+    public Genre getById(long id) {
+        return em.find(Genre.class, id);
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface BookService {
 
-    void insert(Book book);
+    Book insert(Book book);
 
     void update(Book book);
 

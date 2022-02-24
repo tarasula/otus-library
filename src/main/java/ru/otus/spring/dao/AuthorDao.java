@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface AuthorDao {
 
-    void insert(String name);
+    Author insert(Author author);
 
     void update(Author book);
 

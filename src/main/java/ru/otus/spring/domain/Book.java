@@ -1,7 +1,8 @@
 package ru.otus.spring.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import javax.persistence.CascadeType;
@@ -13,25 +14,34 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.List;
 
-@Accessors(chain = true)
-@RequiredArgsConstructor
 @Data
+@Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "book")
-@NamedEntityGraph(name = "book-author-genre",
-        attributeNodes = {@NamedAttributeNode("author"),
-                @NamedAttributeNode("genre")})
+@Table(name = "BOOKS")
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private long id;
+    private Long id;
+
+    @Column
     private String name;
-    private String author;
-    private String genre;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AUTHOR_ID", referencedColumnName = "Id")
+    private Author author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "GENRE_ID", referencedColumnName = "Id")
+    private Genre genre;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Comment> comments;
+
 }
