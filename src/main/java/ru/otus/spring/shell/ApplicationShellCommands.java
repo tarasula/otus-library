@@ -6,9 +6,11 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.commands.Quit;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.Comment;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.service.AuthorServiceImpl;
 import ru.otus.spring.service.BookServiceImpl;
+import ru.otus.spring.service.CommentServiceImpl;
 import ru.otus.spring.service.GenreServiceImpl;
 
 import java.util.List;
@@ -21,6 +23,7 @@ public class ApplicationShellCommands implements Quit.Command {
     private final BookServiceImpl bookService;
     private final AuthorServiceImpl authorService;
     private final GenreServiceImpl genreService;
+    private final CommentServiceImpl commentService;
 
     @ShellMethod(value = "Hello command", key = {"h", "helo", "hello"})
     public String helloMethod() {
@@ -95,6 +98,11 @@ public class ApplicationShellCommands implements Quit.Command {
     @ShellMethod(value = "Exit the shell.", key = {"quit", "exit"})
     public void quit() {
         System.exit(0);
+    }
+
+    @ShellMethod(value = "Get Book comments", key = {"gc", "comment", "comments"})
+    public List<Comment> getComments(long id){
+        return commentService.getCommentsByBook(id);
     }
 
     private Author getAuthorFromDictionary(String authorName){
