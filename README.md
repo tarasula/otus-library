@@ -1,1 +1,1 @@
-# otus-library
+# KMS Lighthouse task

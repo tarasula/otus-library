@@ -1,22 +1,6 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:books
-  sql:
-    init:
-      mode: embedded
-      data-locations: data.sql
-      schema-locations: schema.sql
-  h2:
-    console:
-      path: /h2-console
-      settings:
-        web-allow-others: true
   shell:
     interactive:
       enabled: true
   main:
     allow-circular-references: true
-  jpa:
-    generate-ddl: false
-    hibernate:
-      ddl-auto: validate
